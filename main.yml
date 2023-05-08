@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creacion de Grupo de Seguridad
+Parameters:
+  EC2Instance:
+    Type: String
+    Description: ajdlad
+    Default: t2.small
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+  EC2AMI: 
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id"
+    Default: "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+
+Resources:
+  SecurityGroup: 
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security Group 
+      GroupName: WebServerSecurityGroupv2
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref AWS::StackName, !Ref AWS::AccountId ] ]
+          
+  WordPressServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-02396cdd13e9a1257
+      IamInstanceProfile: LabInstanceProfile
+      SecurityGroupIds: 
+        - Ref: SecurityGroup
+      InstanceType: t2.micro
+      KeyName: vockey
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref AWS::StackName, !Ref AWS::AccountId ] ]
+Outputs:
+  InstanceId:
+    Description: "Id Instancia EC2"
+    Value: AWS::StackId
+    Export: 
+      Name: Outputs
+  ServerPublicIp:
+    Description: "DNS"
+    Value: !Sub 
+        - 'http::\\.${Domain}:80'
+        - Domain: !GetAtt WordPressServer.PublicDnsName
+    Export:
+      Name: ServerPublicIp
+  
+
+      
+          
