@@ -38,4 +38,6 @@ sudo systemctl is-enabled httpd
 
 7- Agregue una regla de seguridad para permitir conexiones HTTP entrantes (puerto 80) a su instancia si aún no lo ha hecho
 
-8- Pruebe su servidor web. En un navegador web, escriba la dirección DNS pública. Y si todo está bien verás que pone: It works!
+8- Pruebe su servidor web. En un navegador web, escriba la dirección DNS pública. Y si todo está bien verás que pone: It works! 
+
+Luego solo tienes que añadirle /phpinfo.php y saldrá la tabla. 
