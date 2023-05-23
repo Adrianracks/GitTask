@@ -1,1 +1,1 @@
-aws cloudformation deploy --stack-name edittemplate --template-file tviernes.yml
+aws cloudformation deploy --stack-name edittemplate --template-file main.yml
