@@ -1,0 +1,83 @@
+Pasos para crear repositorio Git
+Nos vamos al directorio que queramos usar y ponemos estos comandos:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+1 Para inicializar un repositorio de git, accede al directorio que acabas de crear y utiliza el siguiente comando:
+git init
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+2 Para hacer un commit con el mensaje "Inicialización repositorio", utiliza los siguientes comandos:
+git add .
+git commit -m "Inicialización repositorio"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+3 Para crear una nueva rama llamada development en local, utiliza el siguiente comando:
+git checkout -b development
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+4 Para subir tu repositorio local a un repositorio público en GitHub desde la rama master, primero debes crear un repositorio en GitHub. Luego, utiliza el siguiente comando para conectar tu repositorio local con el remoto:
+git remote add origin https://github.com/MikelArias/GitTarea
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Luego, sube los cambios utilizando el siguiente comando:
+git push -u origin master
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+5 Para sincronizar posteriormente tu rama development con la remota, utiliza el siguiente comando:
+git push -u origin development
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+6 Para crear un fichero README.MD en tu rama development, utiliza cualquier editor de texto que te sea cómodo. Asegúrate de guardar el fichero dentro del directorio del repositorio. El contenido del fichero debe ser:
+# Repositorio AWS CloudFormation 
+## Por Mikel Arias Montiel
+- main.yml: Contiene la información de una plantilla de AWS CloudFormation para crear una instancia en EC2.
+- deploy-stack: Script para crear la plantilla de AWS CloudFormation.
+- tear-down: Script para eliminar la plantilla de AWS CloudFormation.
+
+Ahora, en la línea de comandos, asegúrate de que estás en la rama development utilizando el siguiente comando:
+git checkout development
+
+Agrega el archivo README.MD a la rama development utilizando el siguiente comando:
+
+git add README.MD
+
+Crea un nuevo commit con el siguiente comando:
+git commit -m "Agregar archivo README.MD"
+
+Sube los cambios a tu repositorio remoto utilizando el siguiente comando:
+git push origin development
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+7 Para hacer commit de este cambio en tu rama development y subirlo a tu repositorio remoto, utiliza los siguientes comandos:
+git add README.MD
+git commit -m "Añadir fichero README.MD"
+git push
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+8 Para hacer un git diff entre master y development y volcarlo en un fichero llamado git-diff.txt, utiliza el siguiente comando:
+git diff master development > git-diff.txt
+
+Clonar github 
+git clone https://github.com/MikelArias/GitTarea.git
+
+Ver estado y cambios actuales del github
+git status 
+
+Añade los cambios realizados
+git add .
+git commit -m "Cambios"
+
+Guarda los cambios de master (local) en origin (github)
+git push origin master
+
+
+

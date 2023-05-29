@@ -14,6 +14,23 @@ Parameters:
   EC2AMI: 
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id"
     Default: "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+  Imagen: 
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id"
+    Default: "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+  DBName:
+    Type: String
+    Description: Base de Datos
+    Default: WordpressAdrian
+  DBUser:
+    Type: String
+    Description: Nombre usuario
+    Default: administrador
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: Contraseña
+    MinLength: 8
+    Default: usuario1
 
 Resources:
   SecurityGroup: 
@@ -34,10 +51,30 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
       Tags:
         - Key: Name
           Value: !Join [ "-", [ !Ref AWS::StackName, !Ref AWS::AccountId ] ]
-          
+
+  BDRDS:
+    Type: AWS::RDS::DBInstance
+    Properties: 
+      DBInstanceIdentifier: AdrianDB
+      DBName: DBAdrian
+      DBInstanceClass: db.t2.micro
+      AllocatedStorage: 40
+      Engine: mariadb
+      EngineVersion: "10.4"
+      MasterUsername: Usuario
+      MasterUserPassword: usuario1
+      VPCSecurityGroups:
+        - !GetAtt SecurityGroup.GroupId
+
+
   WordPressServer:
     Type: AWS::EC2::Instance
     Properties:
@@ -50,6 +87,41 @@ Resources:
       Tags:
         - Key: Name
           Value: !Join [ "-", [ !Ref AWS::StackName, !Ref AWS::AccountId ] ]
+          
+      UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash 
+            sudo dnf update -y 
+            sudo dnf install -y httpd wget php-fpm php-mysqli php-json php8.1 php-devel
+            sudo dnf install -y mariadb105
+            sudo systemctl start httpd 
+            sudo dnf install wget php-mysqlnd httpd php-fpm php-mysqli mariadb105-server php-json php php-devel -y
+            wget https://wordpress.org/latest.tar.gz
+            tar -xzf latest.tar.gz
+            sudo systemctl start mariadb httpd
+            sudo mv /wordpress/* /var/www/html
+            sudo mysqladmin -u root password 
+            sudo mysql -u Usuario -pusuario1 -P ${BDRDS.Endpoint.Port} -h ${BDRDS.Endpoint.Address} -e "CREATE DATABASE `WordPress`;
+            CREATE USER 'Usuario'@'localhost' IDENTIFIED BY 'root';
+            GRANT ALL PRIVILEGES ON `wordpress-db`.* TO "Usuario"@"localhost";
+            FLUSH PRIVILEGES;
+            cp wordpress/wp-config-sample.php wordpress/wp-config.php
+            sed 's/NONE/ALLOW/3' wp-config.php
+            sed 's/username_here/Usuario' wp-config.php  
+            sed 's/password_here/usuario1' wp-config.php
+            mysql -e "UPDATE mysql.user SET Password = PASSWORD('CHANGEME') WHERE User = 'root'" 
+            mysql -e "DROP USER ''@'localhost'" 
+            mysql -e "DROP USER ''@'$(hostname)'" 
+            mysql -e "DROP DATABASE test" 
+            mysql -e "FLUSH PRIVILEGES""
+            exit
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource WordPressServer --region ${AWS::Region}
+
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref AWS::StackName, !Ref AWS::AccountId ] ]
+
+      
 Outputs:
   InstanceId:
     Description: "Id Instancia EC2"
@@ -64,6 +136,4 @@ Outputs:
     Export:
       Name: ServerPublicIp
   
-
-      
           
